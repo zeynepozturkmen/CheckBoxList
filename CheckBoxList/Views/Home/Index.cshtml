@@ -1,0 +1,159 @@
+﻿
+@{
+    Layout = null;
+}
+
+@using CheckBoxList.Models;
+@model IEnumerable<PersonList>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://getbootstrap.com/dist/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <div class="container">
+        <div class="row">
+
+
+            <div class="col-md-12">
+                <h4>Sınıf Listesi</h4>
+                <div class="table-responsive">
+                    <table id="mytable" class="table table-bordred table-striped">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" class="checkAll" name="checkAll" /></th>
+                                <th>Ad Soyad</th>
+                                <th>Email</th>
+                                <th>Maaş</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="checkboxes">
+
+                            @if (Model != null && Model.Count() > 0)
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td><input type="checkbox" class="checkthis" value="@item.Id" /></td>
+                                        <td><input type="hidden" /></td>
+                                        <td>@item.FullName</td>
+                                        <td>@item.Email</td>
+                                        <td>@item.Salary</td>
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+                    <button class="btn btn-success" id="saveButon">Kaydet</button>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootbox.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("#saveButon").click(function () {
+                var count = 0;
+
+                //seçili checkBox'lar içinde dön demek
+                $('#checkboxes input:checked').each(function () {
+                    //seçililer içinde dönmek için foreach'e giriyorsa en az bir tane seçilmiş var demektir
+                    count = 1;
+
+                });
+
+                if (count == 0) {
+                    bootbox.alert("Lütfen seçim yapınız");
+                }
+                else {
+                    bootbox.confirm("Maaşlara 2 katı zam yapılsın mı?", function (result) {
+                        if (result == true) {
+                            var selected = [];
+                            debugger;
+
+                            $('#checkboxes input:checked').each(function () {
+
+                                var id = $(this).attr('value');
+
+                                var PersonList = {};
+                                PersonList.Id = id;
+
+                                selected.push(PersonList);
+
+                            });
+
+                            $.ajax({
+                                url: '/Home/UpdatePerson',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: JSON.stringify({ PersonList: selected }),
+                                contentType: 'application/json charset=utf=8',
+                                success: function (result) {
+                                    if (result == true) {
+                                        bootbox.alert("zam yapıldı");
+
+                                    }
+                                },
+                                error: function () {
+                                    bootbox.alert("hata");
+                                }
+                            });
+
+                        }
+                    });
+
+                }
+
+            });
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.checkAll').on('click', function () {
+                $(this).closest('table').find('tbody :checkbox')
+                    .prop('checked', this.checked)
+                    .closest('tr').toggleClass('selected', this.checked);
+            });
+
+            $('tbody :checkbox').on('click', function () {
+                $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+                $(this).closest('table').find('.checkAll').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+            });
+        });  
+
+    </script>
+
+
+</body>
+</html>
